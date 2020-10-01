@@ -1,4 +1,4 @@
-import React, { Suspense, useEffect } from 'react';
+import React, { Suspense } from 'react';
 import {
   BrowserRouter,
   Switch,
@@ -8,62 +8,44 @@ import {
   // NavLink,
 } from 'react-router-dom';
 import routes from '../routes';
-
 import PrivateRoute from '../services/PrivateRoute';
 import PublicRoute from '../services/PublicRoute';
-
-import { useDispatch } from 'react-redux';
-import { getDataOnInit } from '../redux/finance/financeOperations';
-
 import Header from './header/Header';
-// import Modal from "../components/modal/Modal";
-// import TotalCostsSumAndIncomeSum from './totalCostsSumAndIncomeSum/TotalCostsSumAndIncomeSum';
-// import OperationList from './operationList/OperationList';
-// import ContactsPage from '../Pages/teamPage/TeamPage';
-// import HomePage from '../Pages/homePage/HomePage';
-// import IncomeList from '../incomeList/IncomeList';
-// import OperationForm from './addOperationForm/AddOperationForm';
-// import BallanceRedactor from "./operationsHeader/BallanceRedactor/BallanceRedactor";
-// import CategoriesFilter from "./categoriesFilter/CategoriesFilter";
-// import Chart from '../components/chart/Chart';
-import Footer from './Footer/Footer';
+import { CommonLoading } from 'react-loadingg';
+import { useSelector } from 'react-redux';
+import styles from './app.module.css';
 
 const App = () => {
-  // !!вставить в страницу operationsPage, только после авторизации!!
-  const dispatch = useDispatch();
-  useEffect(() => {
-    dispatch(getDataOnInit());
-    return;
-  }, []);
+  const isLoading = useSelector(state => state.isLoading.isLoading);
 
   return (
-    <BrowserRouter>
-      <Header />
-      <Suspense fallback={<h1>Loading...</h1>}>
-        {/* <TotalCostsSumAndIncomeSum /> */}
-        <Switch>
-          {routes.map(route => {
-            return route.private ? (
-              <PrivateRoute key={route.label} {...route} />
-            ) : (
-              <PublicRoute
-                key={route.label}
-                {...route}
-                restricted={route.restricted}
-              />
-            );
-          })}
-          <Redirect to="/" />
-        </Switch>
-      </Suspense>
-      {/* <BallanceRedactor/>
-      <OperationForm />
-      <OperationList />
-      <IncomeList />
-      <CategoriesFilter/>
-      <Chart /> */}
-      <Footer />
-    </BrowserRouter>
+    <>
+      <BrowserRouter>
+        <Suspense fallback={<CommonLoading color="orange" size="large" />}>
+          {isLoading && (
+            <div className={styles.loaderOverlay}>
+              <CommonLoading color="orange" size="large" />
+            </div>
+          )}
+          <Header />
+          <div className={styles.forBg}></div>
+          <Switch>
+            {routes.map(route => {
+              return route.private ? (
+                <PrivateRoute key={route.label} {...route} />
+              ) : (
+                <PublicRoute
+                  key={route.label}
+                  {...route}
+                  restricted={route.restricted}
+                />
+              );
+            })}
+            <Redirect to="/" />
+          </Switch>
+        </Suspense>
+      </BrowserRouter>
+    </>
   );
 };
 

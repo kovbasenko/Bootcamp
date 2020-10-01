@@ -1,0 +1,40 @@
+.incomeList {
+  width: 280px;
+  height: 282px;
+  padding-left: 20px;
+  padding-right: 20px;
+  margin: 0 auto;
+  margin-top: 20px;
+  overflow-y: scroll;
+  overflow-x: hidden;
+}
+
+.noIncome {
+  text-align: center;
+  font-size: 13px;
+  line-height: 20px;
+}
+
+@media (min-width: 768px) {
+  .incomeList {
+    width: 100%;
+    padding: 0;
+    border-bottom-left-radius: 25px;
+    border-bottom-right-radius: 25px;
+    border: 2px solid rgb(244, 246, 251);
+    margin: 0 auto;
+    margin-bottom: 20px;
+  }
+
+  .noIncome {
+    padding: 22px;
+    border-bottom: 2px solid rgb(244, 246, 251);
+  }
+}
+
+@media (min-width: 1280px) {
+  .incomeList {
+    margin: 0;
+    margin-bottom: 20px;
+  }
+}

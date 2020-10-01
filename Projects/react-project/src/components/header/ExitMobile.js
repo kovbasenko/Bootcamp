@@ -1,16 +1,33 @@
 import React from "react";
 import { MatchMediaHOC } from "react-match-media";
 import logout from "./img/logout.png";
-const styles = {
-  backgroundColor: "#ccc",
-  color: "red",
-  fontSize: "16px",
-  textAlign: "center",
+
+const ExitMobile = ({ photo, open }) => {
+  return (
+    <>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "space-beetween",
+          alignItems: "center",
+        }}
+      >
+        <div>
+          {photo.length > 1 ? (
+            <img
+              height="30"
+              style={{ marginRight: 10, borderRadius: "50%" }}
+              src={photo}
+              alt="avatar"
+            />
+          ) : (
+            <p>{photo}</p>
+          )}
+        </div>
+        <img src={logout} height="20" alt="logout" onClick={open} />
+      </div>
+    </>
+  );
 };
 
-const ExitMobile = ({ firstLetter }) => {
-  console.log(firstLetter);
-  return <img src={logout} />;
-};
-
-export default MatchMediaHOC(ExitMobile, "(max-width: 700px)");
+export default MatchMediaHOC(ExitMobile, "(max-width: 766px)");

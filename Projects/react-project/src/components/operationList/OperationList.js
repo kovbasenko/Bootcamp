@@ -1,61 +1,82 @@
-import React, { Fragment } from "react";
-import Media from "react-media";
-import Title from "../oneOperation/title/Title";
-import OneOperation from "../oneOperation/OneOperation";
-import styles from "./OperationList.module.css";
+import React, { Fragment, useState } from 'react';
+import Media from 'react-media';
+import { useDispatch } from 'react-redux';
+import Title from './oneOperation/title/Title';
+import Modal from '../modal/Modal';
+import { deleteCosts } from '../../redux/finance/financeOperations';
+import OneOperation from './oneOperation/OneOperation';
+import EmptyMarkup from '../../components/incomeList/oneIncome/OneIncomeEmpty';
+import styles from './OperationList.module.css';
 
-const testOperation = [
-  {
-    id: 1,
-    date: "21.07.2020",
-    category: "Transport",
-    price: 8,
-    operation: "Metroззззззззззззззззззззiiiiiiiiiiiiiiiii",
-  },
+const OperationList = ({ operations, setIsMobile }) => {
+  setIsMobile(false);
 
-  {
-    id: 2,
-    date: "25.07.2020",
-    category: "Products",
-    price: 550,
-    operation: "Kiwi",
-  },
+  const [isShowDeleteModal, setIsShowDeleteModal] = useState(false);
+  const [id, setId] = useState([]);
+  const dispatch = useDispatch();
 
-  {
-    id: 3,
-    date: "28.07.2020",
-    category: "Transport",
-    price: 10,
-    operation: "Train",
-  },
-];
+  const deleteOperation = () => {
+    dispatch(deleteCosts(id[0], id[1]));
+  };
 
-const OperationList = ({ deleteOperation }) => {
-  
   return (
     <>
+      <Media
+        queries={{
+          medium: '(min-width: 768px) and (max-width: 1023px)',
+          large: '(min-width: 1024px)',
+        }}
+      >
+        {matches => (
+          <Fragment>
+            {matches.medium && <Title />}
+            {matches.large && <Title />}
+          </Fragment>
+        )}
+      </Media>
       <ul className={styles.operationList}>
-        <Media
-          queries={{
-            medium: "(min-width: 768px) and (max-width: 1023px)",
-            large: "(min-width: 1024px)",
-          }}
-        >
-          {(matches) => (
-            <Fragment>
-              {matches.medium && <Title />}
-              {matches.large && <Title />}
-              {testOperation.map((operation) => (
-                <OneOperation
-                  operation={operation}
-                  key={operation.id}
-                  deleteOperation={deleteOperation}
-                />
-              ))}
-            </Fragment>
-          )}
-        </Media>
+        {operations.length === 0 ? (
+          <li className={styles.noOperations}>Нет операций</li>
+        ) : (
+          operations.map(operation => (
+            <OneOperation
+              operation={operation}
+              key={operation.costsId}
+              setId={setId}
+              openModal={setIsShowDeleteModal}
+            />
+          ))
+        )}
+        {operations.length === 3 && <EmptyMarkup />}
+        {operations.length === 2 && (
+          <>
+            <EmptyMarkup />
+            <EmptyMarkup />
+          </>
+        )}
+        {operations.length === 1 && (
+          <>
+            <EmptyMarkup />
+            <EmptyMarkup />
+            <EmptyMarkup />
+          </>
+        )}
+        {operations.length === 0 && (
+          <>
+            <EmptyMarkup />
+            <EmptyMarkup />
+            <EmptyMarkup />
+            <EmptyMarkup />
+          </>
+        )}
       </ul>
+      {isShowDeleteModal && (
+        <Modal
+          text="Вы уверены?"
+          onTrue={deleteOperation}
+          closeModal={setIsShowDeleteModal}
+        />
+      )}
     </>
   );
 };

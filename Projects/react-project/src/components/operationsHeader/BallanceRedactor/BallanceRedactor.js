@@ -1,66 +1,156 @@
-import React, { useState } from "react";
-import styles from "./ballanceRedactor.module.css";
-import { useDispatch, useSelector } from "react-redux";
-import Form from "./Form";
-import GoToStatsButton from "./GoToStatsButton/GoToStatsButton";
-
-const TEMP = {
-  status: "string",
-  amount_count: 0,
-  operations: {
-    amount: 1150.45,
-    income: [1], //[{}, {}]
-    costs: [3], //[{}, {}]
-    incomeCategories: [], //['', '', '']
-    costsCategories: [], //['', '', '']
-  },
-};
-
-const localState = {
-  isFirstTransaction: false,
-  isEditing: false,
-};
-
+import React, { useState, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import styles from './ballanceRedactor.module.css';
+import GoToStatsButton from './GoToStatsButton/GoToStatsButton';
+import { addBalance } from '../../../redux/finance/financeOperations';
+import { ballanceExchange } from '../../categoriesFilter/currencyExchange';
 const BallanceRedactor = () => {
-  const [isEditing, setEditing] = useState("");
+  // const [isFirstTransaction, setisFirstTransaction] = useState(true);
+  // const income = useSelector((state) => state.operations.income);
+  // const costs = useSelector((state) => state.operations.costs);
+  // if (income.length !== 0 && costs.length !== 0 && balance !== 0) {
+  //   setisFirstTransaction(false);
+  // }
+  const dispatch = useDispatch();
 
-  // const ballance = useSelector ((state) => state.operations.ballance);
+  const exchangeRatesRoot = useSelector(state => state.exchangeRatesRoot);
+  const exchangeRates = exchangeRatesRoot.exchangeRates;
+  const currentCurrency = exchangeRatesRoot.exchangeCurrency;
+  const [isEditing, setEditing] = useState(false);
+  const balance = useSelector(state => state.operations.balance);
+  const exchangeRatesUSD = Number(exchangeRates[0]?.buy);
+  const exchangeRatesEUR = Number(exchangeRates[1]?.buy);
 
-  // const dispatch = useDispatch();
-  // const [stateBal, setstate] = useState(getUserBallance);
-  // console.log("state", stateBal);
-  // console.log('isAuthenticated', isAuthenticated(state))
-  // const { ballance } = stateBal;
-  // const [isFirstTransaction, setTransactions] = useState(localState);
-  const [state, setstate] = useState(TEMP);
-  const {operations: { income, costs, amount }} = state;
+  const [value, setValue] = useState(
+    ballanceExchange(
+      exchangeRatesUSD,
+      exchangeRatesEUR,
+      currentCurrency,
+      balance,
+    ),
+  );
+  useEffect(() => {
+    window.addEventListener('keydown', isEditing ? null : escListener);
+    window.addEventListener('click', isEditing ? null : closeOnMouseClick);
+    return () => {
+      window.removeEventListener('keydown', escListener);
+      window.removeEventListener('click', closeOnMouseClick);
+    };
+  }, []);
 
-  if (income.length !== 0 && costs.length !== 0 && amount !== null) {
-    // dispatch(localState.isFirstTransaction("true"));
-    localState.isFirstTransaction = true;
-  }
+  const closeOnMouseClick = ({ target: { name: clickName } }) => {
+    if (clickName !== 'balanceChangeBtn') {
+      setEditing(false);
+      setValue('');
+    }
+  };
+
+  const escListener = event => {
+    if (event.keyCode === 27) {
+      event.keyCode === 27 && setEditing(false);
+      setValue('');
+      return;
+    }
+  };
+
+  const handleChange = ({ target: { value } }) => {
+    if (value.indexOf('.') != '-1') {
+      value = value.substring(0, value.indexOf('.') + 0);
+    }
+    !isNaN(value) && setValue(value);
+  };
+
+  const handleSubmit = event => {
+    event.preventDefault();
+    if (value === '') {
+      setEditing(!isEditing);
+      return;
+    }
+    if (value) {
+      const newBalance = exchangeRates => balance / exchangeRates;
+      const getExchangeBalance = newBalance => value - newBalance;
+      const getNewValue = (getExchangeBalance, exchangeRate) =>
+        Math.round(getExchangeBalance * exchangeRate);
+
+      const dispath = exchangeRates => {
+        dispatch(
+          addBalance({
+            amount: getNewValue(
+              getExchangeBalance(newBalance(exchangeRates)),
+              exchangeRates,
+            ),
+          }),
+        );
+        setValue('');
+        setEditing(!isEditing);
+      };
+
+      switch (currentCurrency) {
+        case 'USD':
+          dispath(exchangeRatesUSD);
+          return;
+        case 'EUR':
+          dispath(exchangeRatesEUR);
+          return;
+        default:
+          const newBalanceUAH = value - balance;
+          dispatch(addBalance({ amount: newBalanceUAH }));
+          setValue('');
+          setEditing(!isEditing);
+      }
+    }
+  };
+
   return (
-    <section className={ `${styles.flex} ${styles.wrapper}  ${styles.secPad}  container` }>
-    
-    <GoToStatsButton/>
+    <section
+      className={`${styles.flex} ${styles.wrapper}  ${styles.secPad}  container`}
+    >
+      <GoToStatsButton />
 
-
-    {/* <div className={`${styles.flex} ${styles.wrapper} `}> */}
-    <div className={`${styles.flex} ${styles.div} `}>
-
-      <p className={`${styles.bal_text}  `}>Баланс:</p>
-      <div className={`${styles.flex} ${styles.ballanceWrap}`} >
-        {isEditing ? (
-          <Form isEditing={isEditing} setEditing={setEditing} amount={amount} />) : (<p className={styles.value}>{amount} ₴</p>)}
-        <button
-          className={ `${styles.flex} ${styles.btn}` }
-          onClick={() => setEditing(!isEditing)}>
-          {isEditing ? "подтвердить" : "изменить"}
-        </button>
+      <div className={`${styles.flex} ${styles.div} `}>
+        <p className={`${styles.bal_text}  `}>Баланс:</p>
+        <div className={`${styles.flex} ${styles.ballanceWrap}`}>
+          {isEditing ? (
+            <form onSubmit={handleSubmit} className={styles.flex}>
+              <input
+                autoFocus
+                className={`${styles.flex} ${styles.value} ${styles.inputCor}`}
+                type="text"
+                value={value} //не изменяет сумму в зависимости от валюты
+                onChange={handleChange}
+              />
+              <button
+                type="submit"
+                name="balanceChangeBtn"
+                className={`${styles.flex} ${styles.btn} ${styles.btnToSubmit}`}
+              >
+                подтвердить
+              </button>
+            </form>
+          ) : (
+            <div className={styles.flex}>
+              <p className={styles.value}>
+                {ballanceExchange(
+                  exchangeRatesUSD,
+                  exchangeRatesEUR,
+                  currentCurrency,
+                  balance,
+                )}{' '}
+                {currentCurrency}
+              </p>
+              <button
+                type="button"
+                name="balanceChangeBtn"
+                className={`${styles.flex} ${styles.btn}`}
+                onClick={() => setEditing(!isEditing)}
+              >
+                изменить
+              </button>
+            </div>
+          )}
+        </div>
       </div>
-    </div>
     </section>
   );
 };
-
 export default BallanceRedactor;

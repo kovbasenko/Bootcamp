@@ -1,0 +1,132 @@
+.currencyBar {
+  min-width: 10px;
+  cursor: pointer;
+  border: none;
+}
+.wrapper {
+  position: relative;
+  z-index: 3;
+}
+
+.button {
+  border: none;
+  background-color: transparent;
+}
+
+.active {
+  background-color: #fff;
+}
+
+.popover {
+  position: absolute;
+  /* background-color: #fff; */
+  padding: 0;
+  top: 55px;
+  right: 0;
+  left: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.currencyButton {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  color: #fff;
+}
+
+.menuItem {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 50px;
+  width: 66px;
+  border: none;
+  border-radius: 17px;
+  box-shadow: 1px 2px 3px rgba(170, 178, 197, 0.29);
+  background-color: #fff;
+}
+
+.menuItem:hover {
+  transition: 0.3s ease-in-out;
+  background-color: #ff6c0acc;
+}
+
+.menuItem:hover .changeColorSvgCurrency {
+  transition: 0.3s ease-in-out;
+  opacity: 0.75;
+  fill: #fff;
+}
+.changeColorSvgCurrency {
+  opacity: 0.75;
+  fill: #ff6b08;
+}
+
+@media (min-width: 768px) and (max-width: 1279px) {
+  .currencyBar {
+    margin-right: 5px;
+  }
+}
+
+@media (min-width: 768px) {
+  .popover {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    top: 45px;
+  }
+
+  .menuItem {
+    width: 100px;
+  }
+  .currencyBar {
+    position: relative;
+    width: 100px;
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: space-around;
+    align-items: center;
+    padding: 10px 20px;
+    height: 45px;
+    border: none;
+    border-radius: 17px;
+    box-shadow: 1px 2px 3px rgba(170, 178, 197, 0.29);
+    background-color: #fff;
+    font-family: 'RobotoRegular';
+    font-weight: 500;
+    text-transform: uppercase;
+    color: #52555f;
+  }
+
+  .currencyBar:hover .changeColorSvg {
+    transition: 0.3s ease-in-out;
+    opacity: 0.75;
+    fill: #fff;
+  }
+
+  .currencyBar:hover p {
+    transition: 0.3s ease-in-out;
+    opacity: 0.75;
+    color: #fff;
+  }
+
+  .currencyBar:hover {
+    transition: 0.3s ease-in-out;
+    background-color: #ff6c0acc;
+  }
+
+  .buttonText {
+    display: inline-block;
+
+    margin: 0;
+    font-family: 'RobotoRegular';
+    font-weight: 500;
+    text-transform: uppercase;
+    opacity: 0.75;
+    color: #52555f;
+  }
+}

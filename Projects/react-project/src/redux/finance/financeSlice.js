@@ -1,66 +1,9 @@
 import { createSlice } from '@reduxjs/toolkit';
-import financeSelectors from './financeSelectors';
 
 const initialState = {
-  ballance: '',
-  income: [
-    {
-      date: '2019-12-01T16:37:41.000Z',
-      amount: 500,
-      incomeId: '5de3ec95ae03df0b29a4029f',
-    },
-    {
-      date: '2019-10-01T16:37:41.000Z',
-      amount: 400,
-      incomeId: '5de3ec95ae03df0b29a4029f',
-    },
-    {
-      date: '2019-11-01T16:37:41.000Z',
-      amount: 300,
-      incomeId: '5de3ec95ae03df0b29a4029f',
-    },
-  ],
-  costs: [
-    {
-      product: {
-        category: {
-          name: 'Продукти',
-          categoryId: '5ddaefec2a022d8ddf05cddb',
-        },
-        productId: '5ddaf08f248237915ad7dfbc',
-        name: 'Банани',
-      },
-      costsId: '5de3f3f3ed0e6a41dc21576f',
-      amount: 434,
-      date: '2019-11-01T19:10:40.086Z',
-    },
-    {
-      product: {
-        category: {
-          name: 'Продукти',
-          categoryId: '5ddaefec2a022d8ddf05cddb',
-        },
-        productId: '5ddaf08f248237915ad7dfbc',
-        name: 'Банани',
-      },
-      costsId: '5de3f3f3ed0e6a41dc21576f',
-      amount: 434,
-      date: '2019-10-01T19:10:40.086Z',
-    },
-    {
-      product: {
-        category: {
-          name: 'Продукти',
-          categoryId: '5ddaefec2a022d8ddf05cddb',
-        },
-        productId: '5ddaf08f248237915ad7dfbc',
-        name: 'Банани',
-      },
-      costsId: '5de3f3f3ed0e6a41dc21576f',
-      amount: 434,
-      date: '2019-12-01T19:10:40.086Z',
-    },
-  ],
+  balance: '',
+  income: [],
+  costs: [],
   categories: [],
   products: [],
   error: '',
@@ -70,7 +13,7 @@ export default createSlice({
   name: 'operations',
   initialState,
   reducers: {
-    setErrorNull: (state) => ({ ...state, error: '' }),
+    setErrorNull: state => ({ ...state, error: '' }),
 
     getDataOnInitError: (state, { payload }) => ({
       ...state,
@@ -90,7 +33,7 @@ export default createSlice({
 
     getBalanceSuccess: (state, { payload }) => ({
       ...state,
-      balance: payload.balance,
+      balance: payload,
     }),
 
     getBalanceError: (state, { payload }) => ({
@@ -100,7 +43,7 @@ export default createSlice({
 
     addBalanceSuccess: (state, { payload }) => ({
       ...state,
-      balance: payload.balance,
+      balance: payload,
     }),
 
     addBalanceError: (state, { payload }) => ({
@@ -110,7 +53,7 @@ export default createSlice({
 
     addIncomeSuccess: (state, { payload }) => ({
       ...state,
-      income: [...state.income, payload.income],
+      income: [...state.income, payload],
     }),
 
     addIncomeError: (state, { payload }) => ({
@@ -118,10 +61,13 @@ export default createSlice({
       error: payload.error,
     }),
 
-    deleteIncomeSuccess: (state, { payload }) => ({
-      ...state,
-      income: financeSelectors.deleteIncome(state, payload.id),
-    }),
+    deleteIncomeSuccess: (state, { payload }) => {
+      console.log('payload :>> ', payload);
+      return {
+        ...state,
+        income: state.income.filter(item => item.incomeId !== payload),
+      };
+    },
 
     deleteIncomeError: (state, { payload }) => ({
       ...state,
@@ -130,7 +76,7 @@ export default createSlice({
 
     addCostsSuccess: (state, { payload }) => ({
       ...state,
-      costs: [...state.costs, payload.createdCosts],
+      costs: [...state.costs, payload],
     }),
 
     addCostsError: (state, { payload }) => ({
@@ -140,7 +86,7 @@ export default createSlice({
 
     deleteCostsSuccess: (state, { payload }) => ({
       ...state,
-      costs: financeSelectors.deleteCosts(state, payload.id),
+      costs: state.costs.filter(item => item.costsId !== payload),
     }),
 
     getCategoriesSuccess: (state, { payload }) => ({
@@ -185,7 +131,7 @@ export default createSlice({
 
     addProductSuccess: (state, { payload }) => ({
       ...state,
-      products: payload.products,
+      products: payload,
     }),
 
     addProductError: (state, { payload }) => ({
@@ -195,7 +141,7 @@ export default createSlice({
 
     deleteProductSuccess: (state, { payload }) => ({
       ...state,
-      products: financeSelectors.deleteProducts(state, payload.id),
+      products: state.products.filter(item => item._id !== payload),
     }),
 
     deleteProductError: (state, { payload }) => ({

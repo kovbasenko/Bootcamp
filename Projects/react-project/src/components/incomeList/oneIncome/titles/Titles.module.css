@@ -1,0 +1,31 @@
+.titlesList {
+  display: flex;
+  font-size: 14px;
+  background-color: rgb(244, 246, 251);
+  height: 40px;
+  line-height: 40px;
+  width: 100%;
+  margin: 0 auto;
+  border-top-left-radius: 25px;
+  border-top-right-radius: 25px;
+  font-weight: bold;
+}
+
+.titleDate {
+  padding-left: 80px;
+  padding-right: 128px;
+}
+
+.titleCategory {
+  padding-right: 74px;
+}
+
+.titleSumm{
+padding-right: 60px;
+}
+
+@media (min-width: 1280px) {
+  .titlesList {
+    margin: 0;
+  }
+}

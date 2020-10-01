@@ -1,138 +1,179 @@
-import React, { useEffect, useState } from "react";
-import { Chart, Bar } from "react-chartjs-2";
-import ChartDataLabels from "chartjs-plugin-datalabels";
-import { getData } from "./chartServices";
-import "./roundedBars";
-import styles from "./BarChart.module.css";
+import React, { useState, useEffect, useMemo, useRef } from 'react';
+import { useSelector } from 'react-redux';
+import { Bar, HorizontalBar } from 'react-chartjs-2';
+import ChartDataLabels from 'chartjs-plugin-datalabels';
+import {
+  getBarChartOptions,
+  getHorizontalBarChartOptions,
+} from './chartOptions';
+import {
+  useWindowWidth,
+  backgroundColor,
+  getCurrencySign,
+  getRate,
+  getFilteredData,
+} from './helpers';
+import './roundedBars';
+import styles from './Chart.module.css';
 
-Chart.defaults.global.legend.display = false;
+const BarChart = ({ currentCategory }) => {
+  const [barChartData, setBarChartData] = useState({});
 
-const backgroundColor = [
-  "rgba(255, 129, 45, 0.8)",
-  "rgba(255, 129, 45, 0.3)",
-  "rgba(255, 129, 45, 0.3)",
-  "rgba(255, 129, 45, 0.8)",
-  "rgba(255, 129, 45, 0.3)",
-  "rgba(255, 129, 45, 0.3)",
-  "rgba(255, 129, 45, 0.8)",
-  "rgba(255, 129, 45, 0.3)",
-  "rgba(255, 129, 45, 0.3)",
-  "rgba(255, 129, 45, 0.8)",
-  "rgba(255, 129, 45, 0.3)",
-  "rgba(255, 129, 45, 0.3)",
-  "rgba(255, 129, 45, 0.8)",
-];
+  const categories = useSelector(state => state.operations.categories);
 
-const options = {
-  // responsive: true,
-  // offset: false,
-  legend: {
-    position: "bottom",
-  },
-  scales: {
-    xAxes: [
-      {
-        ticks: {
-          beginAtZero: true,
-          // display: false,
-        },
-        gridLines: {
-          display: false,
-          drawBorder: false,
-        },
-      },
-    ],
-    yAxes: [
-      {
-        ticks: {
-          display: false,
-          beginAtZero: true,
-        },
-        gridLines: {
-          drawBorder: false,
-          color: "rgb(241, 244, 251)",
-        },
-      },
-    ],
-  },
-  tooltips: {
-    displayColors: false,
-    titleFontSize: 16,
-    bodyFontSize: 14,
-    xPadding: 10,
-    yPadding: 10,
-    callbacks: {
-      label: (tooltipItem, data) => {
-        return `₴ ${tooltipItem.value}`;
-      },
-    },
-  },
-  plugins: {
-    datalabels: {
-      color: "#333",
-      align: "top",
-      anchor: "end",
-      formatter: (data) => {
-        return `₴ ${data}`;
-      },
-    },
-  },
-  layout: {
-    padding: {
-      top: 30,
-    },
-  },
-};
+  const categoriesNames = useMemo(
+    () => categories.map(category => category.name),
+    [categories],
+  );
 
-const BarChart = () => {
-  const [chartData, setChartData] = useState({});
+  // GET CURRENCY RATE AND SIGN
 
-  const category = "all";
-  // const category = "products";
+  const currentCurrency = useSelector(
+    state => state.exchangeRatesRoot.exchangeCurrency,
+  );
 
-  const chart = () => {
-    const data = getData(category, 6, 2020);
+  const exchangeRates = useSelector(
+    state => state.exchangeRatesRoot.exchangeRates,
+  );
 
-    setChartData({
-      labels:
-        category === "all"
-          ? [
-              "Продукты",
-              "Алкоголь",
-              "Развлечения",
-              "Здоровье",
-              "Транспорт",
-              "Все для дома",
-              "Техника",
-              "Коммуналка, связь",
-              "Спорт, хобби",
-              "Образование",
-              "Прочее",
-            ]
-          : data && Object.keys(data),
-      // labels: data && Object.keys(data),
+  const exchangeInfo = useMemo(() => getRate(exchangeRates, currentCurrency), [
+    exchangeRates,
+    currentCurrency,
+  ]);
+
+  const exchangeRate =
+    currentCurrency !== 'UAH' && exchangeInfo && Number(exchangeInfo[0]?.buy);
+
+  const currencySign = getCurrencySign(currentCurrency);
+
+  // DATA FOR CHARTS
+
+  const date = useSelector(state => state.statistics.month);
+  const products = useSelector(state => state.operations.costs);
+
+  const data = getFilteredData(currentCategory, date, products);
+
+  const valuesRef = useRef();
+
+  const drawBarChart = () => {
+    const values = data && Object.values(data);
+
+    const convertedValues = data
+      ? values.map(value => {
+          if (currentCurrency === 'UAH') return value;
+
+          return Math.round(value / exchangeRate);
+        })
+      : [];
+
+    valuesRef.current = convertedValues;
+
+    setBarChartData({
+      labels: data && Object.keys(data),
       datasets: [
         {
-          label: "Расходы",
-          data: data && Object.values(data),
+          data: convertedValues,
           backgroundColor: backgroundColor,
-          hoverBackgroundColor: "rgba(255, 179, 45, 0.8)",
-          barThickness: category === "all" ? 20 : 30,
+          barThickness: 22,
         },
       ],
       plugins: [ChartDataLabels],
     });
   };
 
-  useEffect(() => {
-    chart();
-  }, []);
+  const drawHorChart = () => {
+    let horChartData = [];
 
-  return (
-    <div className={styles.chartContainer}>
-      <Bar data={chartData} options={options} />
-    </div>
+    const dataArrays = data && Object.entries(data);
+
+    if (dataArrays) {
+      for (let i = 0; i < dataArrays.length; i += 1) {
+        const convertAmount = () => {
+          if (currentCurrency === 'UAH') return dataArrays[i][1];
+
+          return Math.round(dataArrays[i][1] / exchangeRate);
+        };
+
+        const convertedValue = convertAmount();
+
+        horChartData.push({
+          labels: [dataArrays[i][0]],
+          datasets: [
+            {
+              data: [convertedValue],
+              backgroundColor: () => {
+                for (let j = 0; j < backgroundColor.length; j += 1)
+                  return backgroundColor[i];
+              },
+              barThickness: 18,
+            },
+          ],
+          plugins: [ChartDataLabels],
+        });
+      }
+    }
+
+    return horChartData;
+  };
+
+  const horChartData = drawHorChart();
+
+  useEffect(() => {
+    drawBarChart();
+    drawHorChart();
+  }, [categoriesNames, date, currentCategory, exchangeInfo]);
+
+  const width = useWindowWidth();
+
+  return width > 767 ? (
+    <VerticalBarChart
+      valuesRef={valuesRef}
+      barChartData={barChartData}
+      currencySign={currencySign}
+    />
+  ) : (
+    <HorizontalBarChart
+      valuesRef={valuesRef}
+      horChartData={horChartData}
+      currencySign={currencySign}
+    />
   );
 };
 
 export default BarChart;
+
+const VerticalBarChart = ({ valuesRef, barChartData, currencySign }) => {
+  return valuesRef.current?.length > 0 ? (
+    <div className={`${styles.chartContainer} container`}>
+      <Bar data={barChartData} options={getBarChartOptions(currencySign)} />
+    </div>
+  ) : null;
+};
+
+const HorizontalBarChart = ({ horChartData, currencySign }) => {
+  let max = 0;
+
+  for (let i = 0; i < horChartData.length; i += 1) {
+    max = horChartData[0].datasets[0].data;
+  }
+
+  return horChartData ? (
+    <div className={styles.chartWrapper}>
+      {horChartData.map(elem => {
+        return (
+          <div
+            className={`${styles.horizontalChartContainer} container`}
+            key={elem.labels}
+          >
+            <p className={styles.horLabel}>{elem.labels}</p>
+            <HorizontalBar
+              data={elem}
+              options={getHorizontalBarChartOptions(currencySign, Number(max))}
+              height={110}
+            />
+          </div>
+        );
+      })}
+    </div>
+  ) : null;
+};

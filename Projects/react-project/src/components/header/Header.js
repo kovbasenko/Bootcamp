@@ -1,92 +1,43 @@
-import React, { Component } from "react";
-import Modal from "../modal/Modal";
-import { MatchMediaHOC } from "react-match-media";
-import ReactDOM from "react-dom";
-import Exit from "./Exit";
-import ExitMobile from "./ExitMobile";
-import styles from "./style.module.css";
+import React from 'react';
+import { Link, useLocation } from 'react-router-dom';
+import styles from './style.module.css';
+import UserMenu from './UserMenu';
+import { useSelector } from 'react-redux';
 
-class Header extends Component {
-  state = {
-    isShowModal: false,
-    users: {
-      status: "success",
-      user: {
-        userData: {
-          name: {
-            fullName: "Petia Pupkin",
-            firstName: "Petia",
-            lastName: "Pupkin",
-          },
-          email: "user@example.com",
-          photo: "",
-          userNew: true,
-        },
-        token:
-          "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI1ZDNhMTM4NmIxZTg1NTdjZjIzNjY3ODEiLCJpYXQiOjE1NjQwODcxNzV9.jSdzHuBSf4yKS6t7zwt0AoQIchHlz73JDOjfHVdbTBk",
-      },
-    },
-    firstLetter: "",
-  };
+import { ReactComponent as Logo } from '../../ui/homePage/currency/hryvnia_logo.svg';
+const Header = () => {
+  const location = useLocation();
 
-  componentDidMount() {
-    if (this.state.users.user.userData.photo === "") {
-      this.setState({
-        firstLetter: this.state.users.user.userData.name.firstName.substr(0, 1),
-      });
-    }
-  }
-  closeModal = () => {
-    this.setState({ isShowModal: false });
-  };
-  openModal = () => {
-    this.setState({ isShowModal: true });
-  };
-
-  render() {
-    return (
-      <>
-        <div className={styles.container}>
-          <ul className={styles.headerUl}>
-            <li>LOGO</li>
-            <li>
-              <ul className={styles.headerUlUl}>
-                <li>
-                  <span
-                    style={{
-                      fontFamily: "RobotoRegular",
-                      backgroundColor: "#f4f7fa",
-                      paddingBottom: 5,
-                      paddingTop: 5,
-                      paddingLeft: 10,
-                      paddingRight: 10,
-                      borderRadius: "50%",
-                      fontSize: 14,
-                    }}
-                  >
-                    {this.state.firstLetter}
-                  </span>
-                </li>
-                <li>
-                  {this.state.isShowModal && (
-                    <Modal
-                      text="Вы действительно хотите выйты?"
-                      closeModal={this.closeModal}
-                    />
-                  )}
-                  <ExitMobile />
-                  <Exit
-                    open={this.openModal}
-                    name={this.state.users.user.userData.name.fullName}
-                  />
-                </li>
-              </ul>
-            </li>
-          </ul>
-        </div>
-      </>
-    );
-  }
-}
+  const state = useSelector(state => state);
+  return (
+    <header className={`${styles.header} container`}>
+      <ul className={styles.headerList}>
+        <li>
+          <Link to="/" className={styles.headerLink}>
+            <Logo className={styles.logo} />
+            <p className={styles.logoTitle}>KARBO</p>
+          </Link>
+        </li>
+        <li>
+          {' '}
+          <Link
+            to={{
+              pathname: '/team',
+              state: { from: location },
+            }}
+            className={styles.linkInfoTeam}
+          >
+            Contacts
+          </Link>
+        </li>
+        {state.auth.token && (
+          <li>
+            <UserMenu />
+          </li>
+        )}
+      </ul>
+    </header>
+  );
+};
 
 export default Header;

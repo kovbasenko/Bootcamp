@@ -1,2 +1,0 @@
-# SalleTRON
-JS project
