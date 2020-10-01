@@ -1,0 +1,24 @@
+/*
+ * Все паршалы импортировать в этот файл
+ */
+
+@import 'normalize.scss';
+@import './helpers/variables.scss';
+@import './helpers/placeholders.scss';
+@import './helpers/mixins.scss';
+@import './helpers/fonts.scss';
+@import 'base.scss';
+
+// Sections
+@import './sections/header.scss';
+@import './sections/problems.scss';
+@import './sections/how.scss';
+@import './sections/programm.scss';
+@import './sections/teacher.scss';
+@import './sections/guarantee.scss';
+@import './sections/review.scss';
+@import './sections/registration.scss';
+@import './sections/footer.scss';
+
+// Animation
+@import 'https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.2/animate.css';

@@ -1,0 +1,149 @@
+.guarantee--title {
+  text-align: center;
+  @include font(20px, 62px, 900);
+  font-family: $main-font;
+}
+
+.guarantee_info {
+  background-color: $secondary-bgrnd-color;
+  padding-top: 30px;
+  padding-bottom: 30px;
+
+  &__box {
+    padding-left: 6px;
+  }
+
+  &__item {
+    border-width: 1px;
+    border-color: $accent-color;
+    border-style: none;
+    border-left-style: dotted;
+    padding-left: 26px;
+    position: relative;
+    padding-bottom: 20px;
+
+    &:last-of-type {
+      border-style: none;
+      padding-bottom: 0;
+    }
+
+    &--marked::after {
+      content: '*';
+      color: $accent-color;
+    }
+
+    &--box::before {
+      display: block;
+      content: '';
+      position: absolute;
+      background-image: url(../images/icons/fire.png);
+      background-repeat: no-repeat;
+      background-position: center;
+      background-size: contain;
+      background-color: $secondary-bgrnd-color;
+      left: 0;
+      transform: translateX(-50%);
+      width: 20px;
+      height: 20px;
+    }
+
+    &--text {
+      @include font(12px, 22px, 600);
+      font-family: $main-font;
+    }
+
+    &--subtext {
+      color: $accent-color;
+    }
+  }
+}
+
+@media (min-width: 768px) {
+  .guarantee--title {
+    @include font(26px, 62px, 900);
+  }
+
+  .guarantee_info {
+    padding-top: 40px;
+    padding-bottom: 40px;
+    background-color: $secondary-text-color;
+
+    &__box {
+      padding: 35px 40px 32px 68px;
+      background-color: $secondary-bgrnd-color;
+    }
+
+    &__item--box::before {
+      width: 25px;
+      height: 25px;
+    }
+  }
+}
+
+@media (min-width: 1280px) {
+  .guarantee--title {
+    @include font(42px, 62px, 900);
+    margin-bottom: 26px;
+  }
+
+  .guarantee_info {
+    padding-top: 40px;
+    padding-bottom: 40px;
+
+    &__box {
+      padding: 48px 110px 46px 114px;
+    }
+
+    &__item--text {
+      @include font(18px, 30px, 600);
+      font-family: $main-font;
+    }
+
+    &__item--marked {
+      display: block;
+    }
+
+    &__item--subtext {
+      display: block;
+    }
+
+    &__item--box::before {
+      width: 26px;
+      height: 26px;
+    }
+  }
+}
+
+@media (min-width: 1440px) {
+  .guarantee--title {
+    @include font(46px, 62px, 900);
+    margin-bottom: 26px;
+  }
+
+  .guarantee_info {
+    padding-top: 30px;
+    padding-bottom: 30px;
+
+    &__box {
+      padding: 60px 140px 44px 92px;
+    }
+
+    &__item--text {
+      @include font(22px, 30px, 600);
+      font-family: $main-font;
+    }
+
+    &__item--marked {
+      display: block;
+    }
+
+    &__item--subtext {
+      display: block;
+    }
+
+    &__item--box::before {
+      width: 32px;
+      height: 32px;
+    }
+  }
+}
